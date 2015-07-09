@@ -5,12 +5,13 @@
 
     <!-- Header -->
     <h1>Summer Hill</h1><br />
+    <!-- <img src="/img/shill.png"> -->
     <hr>
 
     <!-- Announce Current Safe Value -->
     <p>
       <b>Current Safe Value:</b> <h3>$<TMPL_VAR NAME="offsetAmount"></h3>
-      <br /><i>Current Month: <TMPL_VAR NAME="month">. Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. </i>
+      <br /><i>Current Month: <TMPL_VAR NAME="month">. <br />Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. </i>
     <hr>
 
     <!-- Alert if we have not payed just yet -->
@@ -28,7 +29,7 @@
         <label for="inputPay">Pay Now:</label>
         <div class="input-group">
           <div class="input-group-addon">$</div>
-          <input type="text" class="form-control" id="inputPay" name="inputPay" placeholder="Amount..">
+          <input type="text" class="form-control" id="inputPay" name="inputPay" placeholder="Amount.." pattern="\d*">
         </div>
       </div>
       <button type="submit" class="btn btn-default">Submit</button>
