@@ -1,0 +1,11 @@
+---
+
+# Our total owing mortgage (Wow, that's alot!):
+totalMortgage : 625600
+
+# Date of month when payment is due!
+# If we don't pay by this date, then alert through our GUI each month:
+payDay : 15
+
+# Our start date for our mortgage:
+startDate : 2015-01-01

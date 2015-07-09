@@ -1,0 +1,34 @@
+<div class="container-fluid">
+
+  <div class="starter-template">
+    <h1>Summer Hill</h1><br />
+    <p>
+      Congrads, we are currently on month no. <b><TMPL_VAR NAME="month"></b><br />
+      Our <b>safe</b> value is now <b>$<TMPL_VAR NAME="offsetAmount">.</b>
+    </p>
+  
+    <TMPL_IF NAME="paymentNeeded">
+      <div class="alert alert-danger" role="alert">
+        <b>Warning: Havn't updated payment this month</b>
+      </div>
+    </TMPL_IF>
+
+    <p>
+      Good Job; Interest is now calculated on <b>$<TMPL_VAR NAME="mortgageRemaining">.</b><br />
+    </p>
+
+    <!-- Donate Button: -->
+    <form class="form-inline" action="/index.pl" method="POST">
+      <div class="form-group">
+        <label for="inputPay">Pay Now:</label>
+        <div class="input-group">
+          <div class="input-group-addon">$</div>
+          <input type="text" class="form-control" id="inputPay" name="inputPay" placeholder="Amount..">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+
+  </div>
+
+</div><!-- /.container -->
