@@ -26,6 +26,7 @@ my $date = `date "+%F"`;
 
 # If we were POSTed; lets update our db:
 if ( $q->request_method eq "POST" ) {
+	chomp($date);
 	my $inputPay = $q->param("inputPay");
 	my $query = "INSERT INTO payments(date,amount) VALUES ('$date',$inputPay)";
 	my $returnVal = $dbh->do($query) or die $DBI::errstr;
