@@ -1,5 +1,10 @@
 ---
 
+# Destination ( & Sender ) Emails to Send Summary Emails to/from:
+senderEmail: notification@budget.noclab.com.au
+# destinationEmails is now kept in secret.yaml (not tracked by public github)
+# destinationEmails: XXX@domain.com
+
 # Our total owing mortgage (Wow, that's alot!):
 totalMortgage : 625600
 

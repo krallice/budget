@@ -16,6 +16,8 @@
     <p>
     <hr>
 
+    <TMPL_UNLESS NAME="generateEmail">
+
     <!-- Alert if we have not payed just yet -->
     <TMPL_IF NAME="paymentNeeded">
       <div class="alert alert-danger" role="alert">
@@ -37,6 +39,8 @@
       <button type="submit" class="btn btn-default">Submit</button>
     </form>
     <br>
+
+    </TMPL_UNLESS>
 
   <!-- /starter-template -->
   </div>
