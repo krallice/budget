@@ -44,6 +44,21 @@ sub notifyPayment{
 	close (SENDMAIL);
 }
 
+# Calculate the amount of Offset paid till date:
+sub calculateOffset {
+
+	# Prepare our query:
+	my $query = "SELECT SUM(amount) FROM payments";
+	my $sqlQuery = $dbh->prepare("$query");
+	$sqlQuery->execute();
+
+	# Do the maths:
+	my $offsetAmount = $sqlQuery->fetchrow();
+	my $mortgageRemaining = $config->{"totalMortgage"} - $offsetAmount;
+
+	return ( $offsetAmount, $mortgageRemaining );
+}
+
 # Calculate the amount to date that we have payed this month:
 sub amountPayedThisMonth {
 
@@ -96,15 +111,6 @@ sub Main{
 	my $template = HTML::Template->new( filename => "index.tmpl", die_on_bad_params => 0 );
 	my $tail_template = HTML::Template->new( filename => "tail.tmpl" );
 
-	# Prepare our query:
-	$query = "SELECT SUM(amount) FROM payments";
-	$sqlQuery = $dbh->prepare("$query");
-	$sqlQuery->execute();
-
-	# Do the maths:
-	my $offsetAmount = $sqlQuery->fetchrow();
-	my $mortgageRemaining = $config->{"totalMortgage"} - $offsetAmount;
-
 	# Calculate our months since we started this whole mortgage payment thing:
 	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
 	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
@@ -114,6 +120,9 @@ sub Main{
 	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
 
 	# Fill out and fire away:
+
+	my ( $offsetAmount, $mortgageRemaining ) = calculateOffset();
+
 	$template->param( month, $monthsPassed );
 	$template->param( paymentNeeded, $paymentNeeded );
 	$template->param( offsetAmount, $offsetAmount );
