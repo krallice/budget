@@ -118,7 +118,7 @@ sub Main{
 	$template->param( paymentNeeded, $paymentNeeded );
 	$template->param( offsetAmount, $offsetAmount );
 	$template->param( mortgageRemaining, $mortgageRemaining );
-	$template->param( payedThisMonth, amountPayedThisMonth );
+	$template->param( payedThisMonth, amountPayedThisMonth() );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:
