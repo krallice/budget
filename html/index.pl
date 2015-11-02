@@ -3,6 +3,8 @@
 # Safe Typeing:
 use warnings;
 
+## Global Config ##
+
 # Our DB Module:
 use DBI;
 my $dbh = DBI->connect("dbi:SQLite:dbname=navua.db");
@@ -24,6 +26,8 @@ my $date = `date "+%F"`;
 ( my $year ) = $date =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
 ( my $month ) = $date =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 ( my $day ) = $date =~ /[0-9]{4}-[0-9]{2}-([0-9]{2})/; 
+
+## End Global ##
 
 # Notify parties that an amount has been payed on the mortgage:
 sub notifyPayment{
