@@ -25,6 +25,7 @@ my $date = `date "+%F"`;
 ( my $month ) = $date =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 ( my $day ) = $date =~ /[0-9]{4}-[0-9]{2}-([0-9]{2})/; 
 
+# Notify parties that an amount has been payed on the mortgage:
 sub notifyPayment{
 
 	# Check how much we've payed:
@@ -43,6 +44,7 @@ sub notifyPayment{
 	close (SENDMAIL);
 }
 
+# Calculate the amount to date that we have payed this month:
 sub amountPayedThisMonth {
 
 	# Calculate the amount payed this month:
