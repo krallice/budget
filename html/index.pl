@@ -96,11 +96,22 @@ sub Main{
 	my $diffMonths = $month - $startMonth;
 	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
 
+	# Calculate the amount payed this month:
+	$query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$year-$month%'";
+	$sqlQuery = $dbh->prepare("$query");
+	$sqlQuery->execute();
+
+	my $payedThisMonth = $sqlQuery->fetchrow();
+	if ( ! defined $payedThisMonth ) {
+		$payedThisMonth = "0.00";
+	}
+
 	# Fill out and fire away:
 	$template->param( month, $monthsPassed );
 	$template->param( paymentNeeded, $paymentNeeded );
 	$template->param( offsetAmount, $offsetAmount );
 	$template->param( mortgageRemaining, $mortgageRemaining );
+	$template->param( payedThisMonth, $payedThisMonth );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:

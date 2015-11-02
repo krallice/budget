@@ -12,7 +12,11 @@
     <!-- Announce Current Safe Value -->
     <p>
       <b>Amount paid on Mortgage:</b> <h3>$<TMPL_VAR NAME="offsetAmount"></h3>
-      <p class="text-muted"><br /><i>Current Month: <TMPL_VAR NAME="month">. <br />Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. </i></p>
+      <p class="text-muted"><br />
+	<i>Current Month: <TMPL_VAR NAME="month">. <br />
+	Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. <br />
+	Payed This Month: +$<TMPL_VAR NAME="payedThisMonth">. </i>
+      </p>
     <p>
     <hr>
 
