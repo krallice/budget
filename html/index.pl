@@ -93,19 +93,22 @@ sub amountPayedThisMonth {
 	return $payedThisMonth;
 }
 
-sub Main{
+# Add a payment into the offset / against the mortgage:
+sub addPayment {
 
-	# If we were POSTed; lets update our db:
-	if ( $q->request_method eq "POST" ) {
-		chomp($date);
-		my $inputPay = $q->param("inputPay");
-		my $query = "INSERT INTO payments(date,amount) VALUES ('$date',$inputPay)";
-		my $returnVal = $dbh->do($query) or die $DBI::errstr;
-		notifyPayment("$inputPay");
-	}
+	chomp($date);
+	my $inputPay = $q->param("inputPay");
+	my $query = "INSERT INTO payments(date,amount) VALUES ('$date',$inputPay)";
+	my $returnVal = $dbh->do($query) or die $DBI::errstr;
+	notifyPayment("$inputPay");
+}
+
+# Check to see if it's passed payday and a payment has not been made a.k.a payment needed :) :
+sub checkPaymentNeeded {
 
 	# Check to see if we've been naughty:
 	my $paymentNeeded = 1;
+
 	# If it's past our payDay cutoff:
 	if ( $day >= $config->{"payDay"} ) {
 
@@ -119,9 +122,21 @@ sub Main{
 				$paymentNeeded = 0;
 			}
 		}
+
 	# Its still early in the month, we dont need to pay up just yet:
 	} else {
 		$paymentNeeded = 0;
+	}
+
+	return $paymentNeeded;
+}
+
+
+sub Main{
+
+	# If we were POSTed; lets update our db:
+	if ( $q->request_method eq "POST" ) {
+		addPayment();
 	}
 
 	# Define our Template Objects:
@@ -132,6 +147,7 @@ sub Main{
 	# Fill out and fire away:
 	my ( $offsetAmount, $mortgageRemaining ) = calculateOffset();
 	my ( $startYear, $startMonth, $monthsPassed ) = calculateDuration();
+	my $paymentNeeded = checkPaymentNeeded();
 
 	$template->param( month, $monthsPassed );
 	$template->param( paymentNeeded, $paymentNeeded );
