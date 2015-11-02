@@ -59,6 +59,20 @@ sub calculateOffset {
 	return ( $offsetAmount, $mortgageRemaining );
 }
 
+# Calculate current month of mortgage:
+sub calculateDuration {
+
+	# Calculate our months since we started this whole mortgage payment thing:
+	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
+	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
+
+	my $diffYears = $year - $startYear;
+	my $diffMonths = $month - $startMonth;
+	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
+
+	return ( $startYear, $startMonth, $monthsPassed );
+}
+
 # Calculate the amount to date that we have payed this month:
 sub amountPayedThisMonth {
 
@@ -111,17 +125,9 @@ sub Main{
 	my $template = HTML::Template->new( filename => "index.tmpl", die_on_bad_params => 0 );
 	my $tail_template = HTML::Template->new( filename => "tail.tmpl" );
 
-	# Calculate our months since we started this whole mortgage payment thing:
-	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
-	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
-
-	my $diffYears = $year - $startYear;
-	my $diffMonths = $month - $startMonth;
-	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
-
 	# Fill out and fire away:
-
 	my ( $offsetAmount, $mortgageRemaining ) = calculateOffset();
+	my ( $startYear, $startMonth, $monthsPassed ) = calculateDuration();
 
 	$template->param( month, $monthsPassed );
 	$template->param( paymentNeeded, $paymentNeeded );
