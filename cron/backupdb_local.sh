@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Disconnect our stdout/stderr:
+exec 1> /dev/null
+exec 2> /dev/null
+
 # Our database to backup:
 dbName="navua.db"
 dbPath="../html/$dbName"
