@@ -88,7 +88,7 @@ sub Main{
 	my $offsetAmount = $sqlQuery->fetchrow();
 	my $mortgageRemaining = $config->{"totalMortgage"} - $offsetAmount;
 
-	# Calculate our months since we started this whole mortagage payment thing:
+	# Calculate our months since we started this whole mortgage payment thing:
 	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
 	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 
