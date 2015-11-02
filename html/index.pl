@@ -3,6 +3,8 @@
 # Safe Typeing:
 use warnings;
 
+## Global Config ##
+
 # Our DB Module:
 use DBI;
 my $dbh = DBI->connect("dbi:SQLite:dbname=navua.db");
@@ -25,6 +27,9 @@ my $date = `date "+%F"`;
 ( my $month ) = $date =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 ( my $day ) = $date =~ /[0-9]{4}-[0-9]{2}-([0-9]{2})/; 
 
+## End Global ##
+
+# Notify parties that an amount has been payed on the mortgage:
 sub notifyPayment{
 
 	# Check how much we've payed:
@@ -43,19 +48,67 @@ sub notifyPayment{
 	close (SENDMAIL);
 }
 
-sub Main{
+# Calculate the amount of Offset paid till date:
+sub calculateOffset {
 
-	# If we were POSTed; lets update our db:
-	if ( $q->request_method eq "POST" ) {
-		chomp($date);
-		my $inputPay = $q->param("inputPay");
-		my $query = "INSERT INTO payments(date,amount) VALUES ('$date',$inputPay)";
-		my $returnVal = $dbh->do($query) or die $DBI::errstr;
-		notifyPayment("$inputPay");
+	# Prepare our query:
+	my $query = "SELECT SUM(amount) FROM payments";
+	my $sqlQuery = $dbh->prepare("$query");
+	$sqlQuery->execute();
+
+	# Do the maths:
+	my $offsetAmount = $sqlQuery->fetchrow();
+	my $mortgageRemaining = $config->{"totalMortgage"} - $offsetAmount;
+
+	return ( $offsetAmount, $mortgageRemaining );
+}
+
+# Calculate current month of mortgage:
+sub calculateDuration {
+
+	# Calculate our months since we started this whole mortgage payment thing:
+	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
+	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
+
+	my $diffYears = $year - $startYear;
+	my $diffMonths = $month - $startMonth;
+	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
+
+	return ( $startYear, $startMonth, $monthsPassed );
+}
+
+# Calculate the amount to date that we have payed this month:
+sub amountPayedThisMonth {
+
+	# Calculate the amount payed this month:
+	my $query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$year-$month%'";
+	my $sqlQuery = $dbh->prepare("$query");
+	$sqlQuery->execute();
+
+	my $payedThisMonth = $sqlQuery->fetchrow();
+	if ( ! defined $payedThisMonth ) {
+		$payedThisMonth = "0.00";
 	}
+
+	return $payedThisMonth;
+}
+
+# Add a payment into the offset / against the mortgage:
+sub addPayment {
+
+	chomp($date);
+	my $inputPay = $q->param("inputPay");
+	my $query = "INSERT INTO payments(date,amount) VALUES ('$date',$inputPay)";
+	my $returnVal = $dbh->do($query) or die $DBI::errstr;
+	notifyPayment("$inputPay");
+}
+
+# Check to see if it's passed payday and a payment has not been made a.k.a payment needed :) :
+sub checkPaymentNeeded {
 
 	# Check to see if we've been naughty:
 	my $paymentNeeded = 1;
+
 	# If it's past our payDay cutoff:
 	if ( $day >= $config->{"payDay"} ) {
 
@@ -69,9 +122,21 @@ sub Main{
 				$paymentNeeded = 0;
 			}
 		}
+
 	# Its still early in the month, we dont need to pay up just yet:
 	} else {
 		$paymentNeeded = 0;
+	}
+
+	return $paymentNeeded;
+}
+
+
+sub Main{
+
+	# If we were POSTed; lets update our db:
+	if ( $q->request_method eq "POST" ) {
+		addPayment();
 	}
 
 	# Define our Template Objects:
@@ -79,39 +144,16 @@ sub Main{
 	my $template = HTML::Template->new( filename => "index.tmpl", die_on_bad_params => 0 );
 	my $tail_template = HTML::Template->new( filename => "tail.tmpl" );
 
-	# Prepare our query:
-	$query = "SELECT SUM(amount) FROM payments";
-	$sqlQuery = $dbh->prepare("$query");
-	$sqlQuery->execute();
-
-	# Do the maths:
-	my $offsetAmount = $sqlQuery->fetchrow();
-	my $mortgageRemaining = $config->{"totalMortgage"} - $offsetAmount;
-
-	# Calculate our months since we started this whole mortgage payment thing:
-	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
-	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
-
-	my $diffYears = $year - $startYear;
-	my $diffMonths = $month - $startMonth;
-	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
-
-	# Calculate the amount payed this month:
-	$query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$year-$month%'";
-	$sqlQuery = $dbh->prepare("$query");
-	$sqlQuery->execute();
-
-	my $payedThisMonth = $sqlQuery->fetchrow();
-	if ( ! defined $payedThisMonth ) {
-		$payedThisMonth = "0.00";
-	}
-
 	# Fill out and fire away:
+	my ( $offsetAmount, $mortgageRemaining ) = calculateOffset();
+	my ( $startYear, $startMonth, $monthsPassed ) = calculateDuration();
+	my $paymentNeeded = checkPaymentNeeded();
+
 	$template->param( month, $monthsPassed );
 	$template->param( paymentNeeded, $paymentNeeded );
 	$template->param( offsetAmount, $offsetAmount );
 	$template->param( mortgageRemaining, $mortgageRemaining );
-	$template->param( payedThisMonth, $payedThisMonth );
+	$template->param( payedThisMonth, amountPayedThisMonth() );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:
