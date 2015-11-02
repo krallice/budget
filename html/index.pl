@@ -131,7 +131,6 @@ sub checkPaymentNeeded {
 	return $paymentNeeded;
 }
 
-
 sub Main{
 
 	# If we were POSTed; lets update our db:
