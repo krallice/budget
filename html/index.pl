@@ -131,6 +131,23 @@ sub checkPaymentNeeded {
 	return $paymentNeeded;
 }
 
+# Generate our last X month history of "donations":
+sub generateRollingHistory {
+
+	my @rollingHistory;
+	my $historyLimit = 6;
+
+	my $sqlQuery = $dbh->prepare("SELECT substr(date,6,2) AS paymonth, SUM(amount) AS paysum 
+				      FROM payments GROUP BY substr(date,0,8) ORDER BY date DESC LIMIT $historyLimit");
+	$sqlQuery->execute();
+
+	while ( my $row = $sqlQuery->fetchrow_hashref ) {
+		push(@rollingHistory, $row);
+	}
+
+	return \@rollingHistory;
+}
+
 sub Main{
 
 	# If we were POSTed; lets update our db:
@@ -153,6 +170,7 @@ sub Main{
 	$template->param( offsetAmount, $offsetAmount );
 	$template->param( mortgageRemaining, $mortgageRemaining );
 	$template->param( payedThisMonth, amountPayedThisMonth() );
+	$template->param( rollingHistory, generateRollingHistory() );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:
