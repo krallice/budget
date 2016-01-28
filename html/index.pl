@@ -27,6 +27,12 @@ my $date = `date "+%F"`;
 ( my $month ) = $date =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 ( my $day ) = $date =~ /[0-9]{4}-[0-9]{2}-([0-9]{2})/; 
 
+# Convert Numerical Values to Text Value for Month:
+my %numMonth = qw(
+  01 Jan  02 Feb  03 Mar  04 Apr  05 May  06 Jun
+  07 Jul  08 Aug  09 Sep  10 Oct  11 Nov  12 Dec
+);
+
 ## End Global ##
 
 # Notify parties that an amount has been payed on the mortgage:
@@ -131,6 +137,32 @@ sub checkPaymentNeeded {
 	return $paymentNeeded;
 }
 
+# Generate our last X month history of "donations":
+sub generateRollingHistory {
+
+	my @rollingHistory;
+	my $historyLimit = 6;
+	my $average = 0;
+
+	my $sqlQuery = $dbh->prepare("SELECT substr(date,6,2) AS paymonth, SUM(amount) AS paysum 
+				      FROM payments GROUP BY substr(date,0,8) ORDER BY date DESC LIMIT $historyLimit");
+	$sqlQuery->execute();
+
+	while ( my $row = $sqlQuery->fetchrow_hashref ) {
+		$row->{paymonth} = $numMonth{"$row->{paymonth}"};
+		$average = $average + $row->{"paysum"};
+		push(@rollingHistory, $row);
+	}
+
+	# Calculate Average Donation and Slam into an anonymous hash:
+	$average = $average / $historyLimit;
+	$average =~ s/\.[0-9]*//g;
+	unshift(@rollingHistory, { paymonth => "<b>Average:</b>", paysum => $average });
+	
+
+	return \@rollingHistory;
+}
+
 sub Main{
 
 	# If we were POSTed; lets update our db:
@@ -153,6 +185,7 @@ sub Main{
 	$template->param( offsetAmount, $offsetAmount );
 	$template->param( mortgageRemaining, $mortgageRemaining );
 	$template->param( payedThisMonth, amountPayedThisMonth() );
+	$template->param( rollingHistory, generateRollingHistory() );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:

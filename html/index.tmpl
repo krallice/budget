@@ -44,6 +44,27 @@
     </form>
     <br>
 
+    <!-- Rolling History: -->
+    <hr>
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+      <table class="table">
+      <tr>
+        <th>Month</th>
+        <th>Amount</th>
+      </tr>
+      <TMPL_LOOP NAME="rollingHistory">
+      <tr>
+      <td>
+        <TMPL_VAR NAME="paymonth">
+      </td>
+      <td>
+        + $<TMPL_VAR NAME="paysum">
+      </td>
+      </tr>
+      </TMPL_LOOP>
+      </table>
+    </div>
     </TMPL_UNLESS>
 
   <!-- /starter-template -->
