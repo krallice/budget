@@ -149,7 +149,11 @@ sub generateRollingHistory {
 	$sqlQuery->execute();
 
 	while ( my $row = $sqlQuery->fetchrow_hashref ) {
-		$row->{paymonth} = $numMonth{"$row->{paymonth}"};
+		if ( $numMonth{"$row->{paymonth}"} =~ $numMonth{"$month"} ) {
+			$row->{paymonth} = $numMonth{"$row->{paymonth}"} . " <i>(Current)</i>";
+		} else {
+			$row->{paymonth} = $numMonth{"$row->{paymonth}"};
+		}
 		$average = $average + $row->{"paysum"};
 		push(@rollingHistory, $row);
 	}
