@@ -177,7 +177,7 @@ sub generateRollingHistory {
 # Check if interest is due:
 sub checkInterestDue {
 
-	my $interest_due = 1;
+	my $interest_due = 0;
 	$interest_due = 1 if $day >= $config->{payDay};
 	return $interest_due;
 }
