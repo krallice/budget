@@ -16,6 +16,15 @@
 	<i>Current Month: <TMPL_VAR NAME="month">. <br />
 	Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. <br />
 	Paid This Month: +$<TMPL_VAR NAME="payedThisMonth">. </i>
+        <TMPL_UNLESS NAME="generateEmail">
+          <br /><i>
+          <TMPL_IF NAME="interestDue">
+	  <font color=#B20000">Note: Interest Deduction Due Start Of Next Month &#10008;</font>
+          <TMPL_ELSE>
+	  <font color="#00B200">Interest Deducted This Paycycle &#10004;</font>
+          </TMPL_IF>
+          </i><br />
+        </TMPL_UNLESS>
       </p>
     <p>
     <hr>

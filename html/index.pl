@@ -174,6 +174,14 @@ sub generateRollingHistory {
 	return \@rollingHistory;
 }
 
+# Check if interest is due:
+sub checkInterestDue {
+
+	my $interest_due = 1;
+	$interest_due = 1 if $day >= $config->{payDay};
+	return $interest_due;
+}
+
 sub Main{
 
 	# If we were POSTed; lets update our db:
@@ -197,6 +205,7 @@ sub Main{
 	$template->param( mortgageRemaining, $mortgageRemaining );
 	$template->param( payedThisMonth, amountPayedThisMonth() );
 	$template->param( rollingHistory, generateRollingHistory($offsetAmount, $monthsPassed) );
+	$template->param( interestDue, checkInterestDue() );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:
