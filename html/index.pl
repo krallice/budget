@@ -140,6 +140,9 @@ sub checkPaymentNeeded {
 # Generate our last X month history of "donations":
 sub generateRollingHistory {
 
+	my $offsetAmount = shift;
+	my $monthsPassed = shift;
+
 	my @rollingHistory;
 	my $historyLimit = 6;
 	my $average = 0;
@@ -162,7 +165,11 @@ sub generateRollingHistory {
 	$average = $average / $historyLimit;
 	$average =~ s/\.[0-9]*//g;
 	unshift(@rollingHistory, { paymonth => "<b>6 Mo. Average:</b>", paysum => $average });
-	
+
+	# Calculate our total average payment for the current life of the loan:
+	my $totalAverage = $offsetAmount / $monthsPassed;
+	$totalAverage =~ s/\.[0-9]*//g;
+	unshift(@rollingHistory, { paymonth => "<b>Life Average:</b>", paysum => $totalAverage });
 
 	return \@rollingHistory;
 }
@@ -189,7 +196,7 @@ sub Main{
 	$template->param( offsetAmount, $offsetAmount );
 	$template->param( mortgageRemaining, $mortgageRemaining );
 	$template->param( payedThisMonth, amountPayedThisMonth() );
-	$template->param( rollingHistory, generateRollingHistory() );
+	$template->param( rollingHistory, generateRollingHistory($offsetAmount, $monthsPassed) );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Output:
