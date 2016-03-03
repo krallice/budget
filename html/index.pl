@@ -161,7 +161,7 @@ sub generateRollingHistory {
 	# Calculate Average Donation and Slam into an anonymous hash:
 	$average = $average / $historyLimit;
 	$average =~ s/\.[0-9]*//g;
-	unshift(@rollingHistory, { paymonth => "<b>Average:</b>", paysum => $average });
+	unshift(@rollingHistory, { paymonth => "<b>6 Mo. Average:</b>", paysum => $average });
 	
 
 	return \@rollingHistory;
