@@ -84,8 +84,8 @@ sub calculateDuration {
 	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
 	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 
-	my $diffYears = $year - $startYear;
-	my $diffMonths = $month - $startMonth;
+	my $diffYears = $lyear - $startYear;
+	my $diffMonths = $lmonth - $startMonth;
 	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
 
 	return ( $startYear, $startMonth, $monthsPassed );
