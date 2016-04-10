@@ -175,7 +175,7 @@ sub generateRollingHistory {
 	$sqlQuery->execute();
 
 	while ( my $row = $sqlQuery->fetchrow_hashref ) {
-		if ( $numMonth{"$row->{paymonth}"} =~ $numMonth{"$month"} ) {
+		if ( $numMonth{"$row->{paymonth}"} =~ $numMonth{"$lmonth"} ) {
 			$row->{paymonth} = $numMonth{"$row->{paymonth}"} . " <i>(Current)</i>";
 		} else {
 			$row->{paymonth} = $numMonth{"$row->{paymonth}"};
