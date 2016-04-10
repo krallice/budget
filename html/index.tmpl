@@ -19,9 +19,9 @@
         <TMPL_UNLESS NAME="generateEmail">
           <br /><i>
           <TMPL_IF NAME="interestDue">
-	  <font color=#B20000">Note: Interest Deduction Due Start Of Next Month &#10008;</font>
+	  <font color=#B20000">Interest Has Not Yet Been Paid </font>
           <TMPL_ELSE>
-	  <font color="#00B200">Interest Deducted This Paycycle &#10004;</font>
+	  <font color="#00B200">Interest Has Been Paid!</font>
           </TMPL_IF>
           </i><br />
         </TMPL_UNLESS>
@@ -34,7 +34,7 @@
     <!-- Alert if we have not payed just yet -->
     <TMPL_IF NAME="paymentNeeded">
       <div class="alert alert-danger" role="alert">
-        <b>Warning: Have not updated safe value this month!</b>
+        <b>Warning: Have not locked in any pay this month</b>
       </div>
       <hr>
     </TMPL_IF>
