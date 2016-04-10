@@ -27,6 +27,14 @@ my $date = `date "+%F"`;
 ( my $month ) = $date =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
 ( my $day ) = $date =~ /[0-9]{4}-[0-9]{2}-([0-9]{2})/; 
 
+# Generate our logical dates:
+my ( $lday, $lmonth, $lyear ) = ( $day, $month, $year );
+my $logicalMonthMode = 1;
+generateLogicalDates();
+
+#print "$lmonth\n";
+#exit 1;
+
 # Convert Numerical Values to Text Value for Month:
 my %numMonth = qw(
   01 Jan  02 Feb  03 Mar  04 Apr  05 May  06 Jun
@@ -83,11 +91,26 @@ sub calculateDuration {
 	return ( $startYear, $startMonth, $monthsPassed );
 }
 
+# Generate our Logical Dates, if logicalMonthMode == 1
+# This aligns our dates with our PayDate/YAML defined pay cycle:
+sub generateLogicalDates {
+	if ( $logicalMonthMode == 1 ) {
+		if ( $day < $config->{"payDay"} ) {
+			$lmonth = sprintf("%02d", $lmonth - 1);
+			# Wrap around to the previous year if nessesary:
+			if ( $lmonth < 1 ) {
+				$lmonth = "12";
+				$lyear = $lyear - 1;
+			}
+		}
+	}
+}
+
 # Calculate the amount to date that we have payed this month:
 sub amountPayedThisMonth {
 
 	# Calculate the amount payed this month:
-	my $query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$year-$month%'";
+	my $query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$lyear-$lmonth%'";
 	my $sqlQuery = $dbh->prepare("$query");
 	$sqlQuery->execute();
 
