@@ -181,6 +181,7 @@ sub generateRollingHistory {
 			$row->{paymonth} = $numMonth{"$row->{paymonth}"};
 		}
 		$average = $average + $row->{"paysum"};
+		#$row->{"paysum"} = formatNumbers($row->{"paysum"});
 		push(@rollingHistory, $row);
 	}
 
@@ -220,8 +221,12 @@ sub formatNumbers {
 
 		# Iterate through the length:
 		for my $i ( 0 .. $#a ) {
-			if ( (($i + 1) % 3) == 0){
-				unshift(@r, "," . $a[$i]);
+			if ( (($i + 1) % 3) == 0) {
+				if ( $i != $#a ) {
+					unshift(@r, "," . $a[$i]);
+				} else {
+					unshift(@r, $a[$i]);		
+				}
 			} else {
 				unshift(@r, $a[$i]);		
 			}
@@ -252,7 +257,7 @@ sub Main{
 	$template->param( month, $monthsPassed );
 	$template->param( paymentNeeded, $paymentNeeded );
 	$template->param( offsetAmount, formatNumbers($offsetAmount) );
-	$template->param( mortgageRemaining, $mortgageRemaining );
+	$template->param( mortgageRemaining, formatNumbers($mortgageRemaining) );
 	$template->param( payedThisMonth, amountPayedThisMonth() );
 	$template->param( rollingHistory, generateRollingHistory($offsetAmount, $monthsPassed) );
 	$template->param( interestDue, checkInterestDue() );
