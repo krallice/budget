@@ -182,18 +182,19 @@ sub generateRollingHistory {
 		}
 		$average = $average + $row->{"paysum"};
 		#$row->{"paysum"} = formatNumbers($row->{"paysum"});
+		$row->{"paysum"} = getSignedValue($row->{"paysum"});
 		push(@rollingHistory, $row);
 	}
 
 	# Calculate Average Donation and Slam into an anonymous hash:
 	$average = $average / $historyLimit;
 	$average =~ s/\.[0-9]*//g;
-	unshift(@rollingHistory, { paymonth => "<b>6 Mo. Average:</b>", paysum => $average });
+	unshift(@rollingHistory, { paymonth => "<b>6 Mo. Average:</b>", paysum => getSignedValue($average) });
 
 	# Calculate our total average payment for the current life of the loan:
 	my $totalAverage = $offsetAmount / $monthsPassed;
 	$totalAverage =~ s/\.[0-9]*//g;
-	unshift(@rollingHistory, { paymonth => "<b>Life Average:</b>", paysum => $totalAverage });
+	unshift(@rollingHistory, { paymonth => "<b>Life Average:</b>", paysum => getSignedValue($totalAverage) });
 
 	return \@rollingHistory;
 }
@@ -237,6 +238,18 @@ sub formatNumbers {
 	return join("", @r);
 }
 
+# Sub to return correct signed dollar value
+# Not originally written in, but since life happens, sometimes you gotta go with flow:
+sub getSignedValue {
+
+	my $val = shift;
+	if ( $val >= 0 ) {
+		return "+ \$" . abs($val);
+	} else {
+		return "- \$" . abs($val);
+	}
+}
+
 sub Main{
 
 	# If we were POSTed; lets update our db:
@@ -258,7 +271,7 @@ sub Main{
 	$template->param( paymentNeeded, $paymentNeeded );
 	$template->param( offsetAmount, formatNumbers($offsetAmount) );
 	$template->param( mortgageRemaining, formatNumbers($mortgageRemaining) );
-	$template->param( payedThisMonth, amountPayedThisMonth() );
+	$template->param( payedThisMonth, getSignedValue(amountPayedThisMonth()) );
 	$template->param( rollingHistory, generateRollingHistory($offsetAmount, $monthsPassed) );
 	$template->param( interestDue, checkInterestDue() );
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
