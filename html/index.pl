@@ -110,7 +110,10 @@ sub generateLogicalDates {
 sub amountPayedThisMonth {
 
 	# Calculate the amount payed this month:
-	my $query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$lyear-$lmonth%'";
+
+	#my $query = "SELECT SUM(amount) FROM payments WHERE date LIKE '%$lyear-$lmonth%'";
+	my $cutoffDay = $config->{payDay} - 1;
+	my $query = "SELECT SUM(amount) FROM payments WHERE date BETWEEN '$lyear-$lmonth-$config->{payday}' AND '$year-$month-$cutoffDay'";
 	my $sqlQuery = $dbh->prepare("$query");
 	$sqlQuery->execute();
 
