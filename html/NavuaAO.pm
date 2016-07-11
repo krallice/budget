@@ -8,9 +8,9 @@ package NavuaAO;
 
 use strict;
 use warnings;
-use Carp;
 
 use DBI;
+use Carp;
 
 # Init our Navua Access Object: 
 sub new {
@@ -62,4 +62,71 @@ sub getLastOffsetValue {
 	return $value;
 }
 
+# Sub to format our numbers like XX,XXX etc..
+sub formatNumbers {
+
+        # Read our number reverse, and then split into an array:
+        my $val = reverse shift;
+        my @a = split("", $val);
+
+        # Our return array:
+        my @r;
+
+        # If we have a complex number:
+        if ( (scalar @a + 1) > 3) {
+
+                # Iterate through the length:
+                for my $i ( 0 .. $#a ) {
+                        if ( (($i + 1) % 3) == 0) {
+                                if ( $i != $#a ) {
+                                        unshift(@r, "," . $a[$i]);
+                                } else {
+                                        unshift(@r, $a[$i]);
+                                }
+                        } else {
+                                unshift(@r, $a[$i]);
+                        }
+                }
+        }
+
+        # Flatten to scalar and return:
+        return join("", @r);
+}
+
+# Return correctly signed value:
+sub getSignedValue {
+
+        my $val = shift;
+        if ( $val >= 0 ) {
+                return "+ \$" . abs($val);
+        } else {
+                return "- \$" . abs($val);
+        }
+}
+
+sub getMortgageRemainingPretty {
+
+	my $self = shift;
+	my $totalMortgage = shift;
+
+	my $mortgageRemaining = getMortgageRemaining($self, "$totalMortgage");
+	$mortgageRemaining = formatNumbers("$mortgageRemaining");
+
+	return $mortgageRemaining;
+}
+
+sub getMortgageRemaining {
+
+	my $self = shift;
+	my $totalMortgage = shift;
+
+	# Get Offset Total:
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments");
+        $sqlQuery->execute();
+	my $offsetTotal = $sqlQuery->fetchrow;
+
+	my $mortgageRemaining = $totalMortgage - $offsetTotal;
+
+	return $mortgageRemaining;
+}
 1;
