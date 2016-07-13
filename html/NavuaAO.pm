@@ -32,7 +32,7 @@ sub getFilename {
 	return "$self->{filename}";
 }
 
-# Get the First $ value placed into offset:
+# Get the very first $ value placed into offset:
 sub getFirstOffsetValue {
 
 	my $self = shift;
@@ -47,7 +47,7 @@ sub getFirstOffsetValue {
 	return $value;
 }
 
-# Get the First $ value placed into offset:
+# Get the very last $ value placed into offset:
 sub getLastOffsetValue {
 
 	my $self = shift;
@@ -62,7 +62,8 @@ sub getLastOffsetValue {
 	return $value;
 }
 
-# Sub to format our numbers like XX,XXX etc..
+# Sub to format our numbers like XX,XXX etc.. to nicely
+# represent values over $999
 sub formatNumbers {
 
         # Read our number reverse, and then split into an array:
@@ -93,7 +94,7 @@ sub formatNumbers {
         return join("", @r);
 }
 
-# Return correctly signed value:
+# Return our correctly signed value, for when we need to return negative values :(
 sub getSignedValue {
 
         my $val = shift;
@@ -104,6 +105,23 @@ sub getSignedValue {
         }
 }
 
+sub getCurrentOffset {
+
+	my $self = shift;
+	my $cycleStart = shift; # Date that our pay month cycle starts
+
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments");
+        $sqlQuery->execute();
+	my $offsetTotal = $sqlQuery->fetchrow;
+
+	my $mortgageRemaining = $totalMortgage - $offsetTotal;
+
+	return $mortgageRemaining;
+
+}
+
+# Return the amount of mortgage remaining (Pretty comma's form)
+# ie: Mortgage - ( Offset + Principal )
 sub getMortgageRemainingPretty {
 
 	my $self = shift;
@@ -115,6 +133,8 @@ sub getMortgageRemainingPretty {
 	return $mortgageRemaining;
 }
 
+# Return the amount of mortgage remaining
+# ie: Mortgage - ( Offset + Principal )
 sub getMortgageRemaining {
 
 	my $self = shift;
