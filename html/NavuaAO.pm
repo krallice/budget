@@ -109,14 +109,14 @@ sub getCurrentOffset {
 
 	my $self = shift;
 	my $cycleStart = shift; # Date that our pay month cycle starts
+	my $selectedMonth = shift;
+	my $selectedDay = shift;
 
 	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments");
         $sqlQuery->execute();
-	my $offsetTotal = $sqlQuery->fetchrow;
+	my $currentOffset = $sqlQuery->fetchrow;
 
-	my $mortgageRemaining = $totalMortgage - $offsetTotal;
-
-	return $mortgageRemaining;
+	return $currentOffset;
 
 }
 
@@ -148,5 +148,23 @@ sub getMortgageRemaining {
 	my $mortgageRemaining = $totalMortgage - $offsetTotal;
 
 	return $mortgageRemaining;
+}
+
+# Get Offset paid for given cycle:
+sub getOffsetPaidCycle {
+
+	my $self = shift;
+	my $cycleStart = shift;
+	my $cycleEnd = shift;
+
+	my $offsetPaid = 0;
+
+	# Get Offset Total:
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments WHERE date >= '$cycleStart' AND date < '$cycleEnd'");
+        $sqlQuery->execute();
+	$offsetPaid = $sqlQuery->fetchrow;
+	#$offsetPaid = formatNumbers("$offsetPaid");
+
+	return $offsetPaid;
 }
 1;

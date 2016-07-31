@@ -11,6 +11,14 @@
 
     <p>Last Offset Value: $<TMPL_VAR NAME="lastOffsetValue"></p>
     <p>Mortgage Remaining: $<TMPL_VAR NAME="mortgageRemaining"></p>
+    <p>Current Offset: $<TMPL_VAR NAME="currentOffset"></p>
+    <p>Pay Cycle Start: <TMPL_VAR NAME="payCycleStart"></p>
+    <p>Pay Cycle End: <TMPL_VAR NAME="payCycleEnd"></p>
+    <p>Pay Cycle Payment: <TMPL_VAR NAME="currentOffsetPayment"></p>
+    <p>Average 6 Month Cycle Payment: <TMPL_VAR NAME="averagePayment"></p>
+    <TMPL_LOOP NAME="rollingHistory">
+      <p><TMPL_VAR NAME="cycStart"> - <TMPL_VAR NAME="monthName"> - <TMPL_VAR NAME="sum"></p>
+    </TMPL_LOOP>
   <!-- /starter-template -->
   </div>
 
