@@ -13,6 +13,9 @@ use YAML::XS 'LoadFile';
 my $config = LoadFile('config.yaml');
 my $secret_config = LoadFile('secret.yaml');
 
+# Init CGI Module:
+my $q = CGI->new();
+
 # Extract our dates:
 my $dateHash = {};
 $dateHash->{fullDate} = `date "+%F"`;
@@ -169,6 +172,7 @@ sub formatNumbers {
 	# Flatten to scalar and return:
 	return join("", @r);
 }
+
 sub Main {
 
         # Define our Template Objects:
@@ -179,6 +183,11 @@ sub Main {
 	getCurrentPayCycle();
 
 	my $navuaAO = NavuaAO->new(filename => "navua.db");
+
+	# If we were POSTed; lets update our db:
+	if ( $q->request_method eq "POST" ) {
+		$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"))
+	}
 
 	my $average = 0;
 	my $lifeAverage = 0;

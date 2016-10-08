@@ -181,4 +181,14 @@ sub getLifeAverage {
 	return sprintf("%02d", $totalPaid / $monthsPassed);
 }
 
+sub addOffsetPayment {
+
+	my $self = shift;
+	my $pdate = shift;
+	my $pammount = shift;
+
+	my $sqlQuery = $self->{dbh}->prepare("INSERT INTO payments(date,amount) VALUES ('$pdate', $pammount)");
+	$sqlQuery->execute();
+}
+
 1;
