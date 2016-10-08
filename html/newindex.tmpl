@@ -9,6 +9,23 @@
     <!-- <img src="/img/shill.png"> -->
     <hr>
 
+    <!-- Stats Header -->
+    <p>
+    <b>Amount paid on Mortgage:</b>
+    <h3>$<TMPL_VAR NAME="currentOffset"></h3>
+    <p class="text-muted"><br />
+    <i>Current Month: <TMPL_VAR NAME="monthsPassed">. <br />
+    Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. <br />
+    Paid This Month: <TMPL_VAR NAME="currentOffsetPayment">. </i><br />
+    <TMPL_IF NAME="interestDue">
+      <font color=#B20000">Interest Has Not Yet Been Paid </font>
+    <TMPL_ELSE>
+      <font color="#00B200">Interest Has Been Paid!</font>
+    </TMPL_IF>
+    </p>
+    </p>
+
+    <!--
     <p>Last Offset Value: $<TMPL_VAR NAME="lastOffsetValue"></p>
     <p>Mortgage Remaining: $<TMPL_VAR NAME="mortgageRemaining"></p>
     <p>Current Offset: $<TMPL_VAR NAME="currentOffset"></p>
@@ -16,9 +33,66 @@
     <p>Pay Cycle End: <TMPL_VAR NAME="payCycleEnd"></p>
     <p>Pay Cycle Payment: <TMPL_VAR NAME="currentOffsetPayment"></p>
     <p>Average 6 Month Cycle Payment: <TMPL_VAR NAME="averagePayment"></p>
+    -->
+
+    <!-- Donate Button: -->
+    <hr>
+    <form class="form-inline" action="/newindex.pl" method="POST">
+      <div class="form-group">
+        <label for="inputPay">Pay Now:</label>
+        <div class="input-group">
+          <div class="input-group-addon">$</div>
+          <input type="text" class="form-control" id="inputPay" name="inputPay" placeholder="Amount.." pattern="\d*">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-default">Submit</button>
+    </form>
+    <br>
+
+    <!-- History Table -->
+    <hr>
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+      <table class="table">
+      <tr>
+        <th>Month</th>
+        <th>Amount</th>
+      </tr>
+      <tr>
+      <td>
+        <b>Life Average:</b>
+      </td>
+      <td>
+        <b><TMPL_VAR NAME="lifeAverage"><b/>
+      </td>
+      </tr>
+      <tr>
+      <td>
+        <b>6 Month Average:</b>
+      </td>
+      <td>
+        <b><TMPL_VAR NAME="averagePayment"><b/>
+      </td>
+      </tr>
+      <TMPL_LOOP NAME="rollingHistory">
+      <tr>
+      <td>
+        <TMPL_VAR NAME="monthName">
+      </td>
+      <td>
+        <TMPL_VAR NAME="sum">
+      </td>
+      </tr>
+      </TMPL_LOOP>
+      </table>
+    </div>
+
+    <!--
     <TMPL_LOOP NAME="rollingHistory">
       <p><TMPL_VAR NAME="cycStart"> - <TMPL_VAR NAME="monthName"> - <TMPL_VAR NAME="sum"></p>
     </TMPL_LOOP>
+    -->
+
   <!-- /starter-template -->
   </div>
 

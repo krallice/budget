@@ -53,11 +53,27 @@ sub getCurrentPayCycle {
 	$dateHash->{cycEnd} = "$dateHash->{cycYearEnd}" . "-" . "$dateHash->{cycMonthEnd}" . "-" . "$dateHash->{cycDayEnd}";
 }
 
+sub calculateDuration {
+
+	# Calculate our months since we started this whole mortgage payment thing:
+	( my $startYear ) = $config->{"startDate"} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/; 
+	( my $startMonth ) = $config->{"startDate"} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/; 
+
+	my $diffYears = $dateHash->{cycYear} - $startYear;
+	my $diffMonths = $dateHash->{cycMonth} - $startMonth;
+	my $monthsPassed = ( $diffYears * 12 ) + $diffMonths;
+
+	#return ( $startYear, $startMonth, $monthsPassed );
+	return $monthsPassed
+}
+
 sub getRollingHistory {
 
 	my $historyDepth = 6;
 	my $navuaAO = shift;
 	my $avref = shift;
+	my $liferef = shift;
+	my $monthsPassed = shift;
 	my $rollingHistory;
 	my $i = 0;
 	
@@ -85,19 +101,74 @@ sub getRollingHistory {
 
 		$history->{cycStart} = "$history->{cycYear}" . "-" . "$history->{cycMonth}" . "-" . "$history->{cycDay}";
 		$history->{cycEnd} = "$history->{cycYearEnd}" . "-" . "$history->{cycMonthEnd}" . "-" . "$history->{cycDayEnd}";
-		$history->{monthName} = $numMonth{"$history->{cycMonth}"};
+		if ( $history->{cycMonth} eq $dateHash->{cycMonth} ) {
+			$history->{monthName} = $numMonth{"$history->{cycMonth}"} . " (Current)";
+		} else {
+			$history->{monthName} = $numMonth{"$history->{cycMonth}"};
+		}
+
 		$history->{sum} = $navuaAO->getOffsetPaidCycle("$history->{cycStart}", "$history->{cycEnd}");
 		$$avref = $$avref + $history->{sum};
+		$history->{sum} = getSignedValue($history->{sum});
 
 		unshift(@$rollingHistory, $history);
 		$i++;
 	}
 
-	$$avref = sprintf("%02d", ( $$avref / $historyDepth ));
+	$$avref = getSignedValue(sprintf("%02d", ( $$avref / $historyDepth )));
+	$$liferef = getSignedValue($navuaAO->getLifeAverage($$monthsPassed));
 
 	return $rollingHistory;
 }
 
+sub getSignedValue {
+
+	my $val = shift;
+	if ( $val >= 0 ) {
+		return "+ \$" . abs($val);
+	} else {
+		return "- \$" . abs($val);
+	}
+}
+
+# Check if interest is due:
+sub checkInterestDue {
+
+	my $interest_due = 0;
+	$interest_due = 1 if $dateHash->{calDay} >= $config->{payDay};
+	return $interest_due;
+}
+
+# Sub to format our numbers like XX,XXX etc..
+sub formatNumbers {
+
+	# Read our number reverse, and then split into an array:
+	my $val = reverse shift;
+	my @a = split("", $val);
+
+	# Our return array:
+	my @r;
+	
+	# If we have a complex number:
+	if ( (scalar @a + 1) > 3) {
+
+		# Iterate through the length:
+		for my $i ( 0 .. $#a ) {
+			if ( (($i + 1) % 3) == 0) {
+				if ( $i != $#a ) {
+					unshift(@r, "," . $a[$i]);
+				} else {
+					unshift(@r, $a[$i]);		
+				}
+			} else {
+				unshift(@r, $a[$i]);		
+			}
+		}
+	}
+	
+	# Flatten to scalar and return:
+	return join("", @r);
+}
 sub Main {
 
         # Define our Template Objects:
@@ -111,15 +182,19 @@ sub Main {
 
 	my $average = 0;
 	my $lifeAverage = 0;
+	my $monthsPassed = calculateDuration();
 
-	$template->param( lastOffsetValue, $navuaAO->getLastOffsetValue() );
-	$template->param( mortgageRemaining, $navuaAO->getMortgageRemainingPretty($config->{totalMortgage}) );
-	$template->param( currentOffset, $navuaAO->getCurrentOffset($config->{payDay}) );
+	$template->param( interestDue, checkInterestDue() );
+	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
+	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
+	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
 	$template->param( payCycleStart, $dateHash->{cycStart} );
 	$template->param( payCycleEnd, $dateHash->{cycEnd} );
-	$template->param( currentOffsetPayment, $navuaAO->getOffsetPaidCycle("$dateHash->{cycStart}", "$dateHash->{cycEnd}") );
-	$template->param( rollingHistory, getRollingHistory($navuaAO, \$average) );
+	$template->param( currentOffsetPayment, getSignedValue($navuaAO->getOffsetPaidCycle("$dateHash->{cycStart}", "$dateHash->{cycEnd}")) );
+	$template->param( rollingHistory, getRollingHistory($navuaAO, \$average, \$lifeAverage, \$monthsPassed) );
+	$template->param( monthsPassed, $monthsPassed );
 	$template->param( averagePayment, $average);
+	$template->param( lifeAverage, $lifeAverage);
 
         # Output:
         print "Content-Type: text/html\n\n", $head_template->output, $template->output, $tail_template->output;

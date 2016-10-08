@@ -167,4 +167,18 @@ sub getOffsetPaidCycle {
 
 	return $offsetPaid;
 }
+
+sub getLifeAverage {
+
+	my $self = shift;
+	my $monthsPassed = shift;
+
+	my $totalPaid = 0;
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments");
+	$sqlQuery->execute();
+	$totalPaid = $sqlQuery->fetchrow;
+
+	return sprintf("%02d", $totalPaid / $monthsPassed);
+}
+
 1;
