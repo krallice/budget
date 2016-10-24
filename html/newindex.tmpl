@@ -33,7 +33,18 @@
     <p>Pay Cycle End: <TMPL_VAR NAME="payCycleEnd"></p>
     <p>Pay Cycle Payment: <TMPL_VAR NAME="currentOffsetPayment"></p>
     <p>Average 6 Month Cycle Payment: <TMPL_VAR NAME="averagePayment"></p>
+
+    <p><TMPL_VAR NAME="diag_one"></p>
+    <p><TMPL_VAR NAME="diag_two"></p>
     -->
+
+    <!-- Alert if we have not payed just yet -->
+    <TMPL_IF NAME="paymentNeeded">
+      <hr>
+      <div class="alert alert-danger" role="alert">
+        <b>Warning: Have not locked in any pay this month</b>
+      </div>
+    </TMPL_IF>
 
     <!-- Donate Button: -->
     <hr>

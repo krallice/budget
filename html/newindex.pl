@@ -19,6 +19,7 @@ my $q = CGI->new();
 # Extract our dates:
 my $dateHash = {};
 $dateHash->{fullDate} = `date "+%F"`;
+chomp($dateHash->{fullDate});
 ( $dateHash->{calYear} ) = $dateHash->{fullDate} =~ /([0-9]{4})-[0-9]{2}-[0-9]{2}/;
 ( $dateHash->{calMonth} ) = $dateHash->{fullDate} =~ /[0-9]{4}-([0-9]{2})-[0-9]{2}/;
 ( $dateHash->{calDay} ) = $dateHash->{fullDate} =~ /[0-9]{4}-[0-9]{2}-([0-9]{2})/;
@@ -86,7 +87,13 @@ sub getRollingHistory {
 		#Calculate Start:
 		$history->{cycDay} = $dateHash->{cycDay};
 		$history->{cycYear} = $dateHash->{cycYear};
-		$history->{cycMonth} = sprintf("%02d", $dateHash->{cycMonth} - ($historyDepth - $i - 1)); 
+			
+		if ( checkPaymentNeeded($navuaAO) == 0 ) {
+			$history->{cycMonth} = sprintf("%02d", $dateHash->{cycMonth} - ($historyDepth - $i - 1)); 
+		# We have to make a payment, so lets go back one more:
+		} else {
+			$history->{cycMonth} = sprintf("%02d", $dateHash->{cycMonth} - ($historyDepth - $i));
+		}
 		if ( $history->{cycMonth} < 1 ) {
 			$history->{cycMonth} = 12;
                         $history->{cycYear} = sprintf("%02d", $dateHash->{calYear} - 1);
@@ -122,6 +129,28 @@ sub getRollingHistory {
 	$$liferef = getSignedValue($navuaAO->getLifeAverage($$monthsPassed));
 
 	return $rollingHistory;
+}
+
+sub checkPaymentNeeded {
+
+	# Check to see if we've been naughty:
+	my $navuaAO = shift;
+	my $paymentNeeded = 0;
+
+	# If it's past our payDay cutoff:
+	if ( $dateHash->{calDay} >= $config->{"payDay"} ) {
+
+		# Check if we've already made a payment:
+		my $paymentMade = $navuaAO->checkPaymentsMade("$dateHash->{calYear}-$dateHash->{calMonth}");
+		if ( $paymentMade == 0 ) {
+			$paymentNeeded = 1;
+		}
+	# Its still early in the month, we dont need to pay up just yet:
+	} else {
+		$paymentNeeded = 0;
+	}
+
+	return $paymentNeeded;
 }
 
 sub getSignedValue {
@@ -197,6 +226,7 @@ sub Main {
 	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
 	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
+	$template->param( paymentNeeded, checkPaymentNeeded($navuaAO) );
 	$template->param( payCycleStart, $dateHash->{cycStart} );
 	$template->param( payCycleEnd, $dateHash->{cycEnd} );
 	$template->param( currentOffsetPayment, getSignedValue($navuaAO->getOffsetPaidCycle("$dateHash->{cycStart}", "$dateHash->{cycEnd}")) );
@@ -204,6 +234,10 @@ sub Main {
 	$template->param( monthsPassed, $monthsPassed );
 	$template->param( averagePayment, $average);
 	$template->param( lifeAverage, $lifeAverage);
+
+	# Diags:
+	#$template->param( diag_one, $navuaAO->checkPaymentsMade("$dateHash->{calYear}-$dateHash->{calMonth}") );
+	#$template->param( diag_two, checkPaymentNeeded($navuaAO) );
 
         # Output:
         print "Content-Type: text/html\n\n", $head_template->output, $template->output, $tail_template->output;

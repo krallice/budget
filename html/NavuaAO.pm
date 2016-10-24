@@ -191,4 +191,17 @@ sub addOffsetPayment {
 	$sqlQuery->execute();
 }
 
+sub checkPaymentsMade {
+
+	my $self = shift;
+	my $checkDate = shift;
+	my $payment = 0;
+
+	my $sqlQuery = $self->{dbh}->prepare("SELECT COUNT(*) FROM (SELECT date FROM payments WHERE date LIKE '$checkDate%')");
+	$sqlQuery->execute();
+	$payment = $sqlQuery->fetchrow;
+	
+	return $payment;
+}
+
 1;
