@@ -131,6 +131,24 @@ sub getRollingHistory {
 	return $rollingHistory;
 }
 
+sub notifyPayment{
+
+        # Check how much we've payed:
+        my $inputPay = shift;
+
+        # Generate our new HTML (after updating payed amount):
+        my $htmlOutput = `REQUEST_METHOD="GET" GEN_EMAIL="YES" ./newindex.pl`;
+
+        # Leverage Sendmail to send our notification email to respective parties:
+        open  (SENDMAIL, "|/usr/sbin/sendmail -f '$config->{senderEmail}' -t");
+        print SENDMAIL "From: $config->{senderEmail}\n";
+        print SENDMAIL "To: $secret_config->{destinationEmails}\n";
+        print SENDMAIL "MIME-Version: 1.0\n";
+        print SENDMAIL "Subject: \$$inputPay Payed Off Mortgage!\n";
+        print SENDMAIL "$htmlOutput";
+        close (SENDMAIL);
+}
+
 sub checkPaymentNeeded {
 
 	# Check to see if we've been naughty:
@@ -222,7 +240,8 @@ sub Main {
 
 	# If we were POSTed; lets update our db:
 	if ( $q->request_method eq "POST" ) {
-		$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"))
+		$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"));
+		notifyPayment($q->param(inputPay));
 	}
 
 	my $average = 0;
@@ -242,6 +261,8 @@ sub Main {
 	$template->param( monthsPassed, $monthsPassed );
 	$template->param( averagePayment, $average);
 	$template->param( lifeAverage, $lifeAverage);
+
+	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Diags:
 	#$template->param( diag_one, $navuaAO->checkPaymentsMade("$dateHash->{calYear}-$dateHash->{calMonth}") );

@@ -17,6 +17,7 @@
     <i>Current Month: <TMPL_VAR NAME="monthsPassed">. <br />
     Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. <br />
     Paid This Month: <TMPL_VAR NAME="currentOffsetPayment">. </i><br />
+    <TMPL_UNLESS NAME="generateEmail">
     <TMPL_IF NAME="interestDue">
       <font color=#B20000">Interest Has Not Yet Been Paid (~$500)</font><br />
     <TMPL_ELSE>
@@ -27,6 +28,7 @@
     <TMPL_ELSE>
       <font color="#00B200">Rent Has Been Paid!</font><br />
     </TMPL_IF>
+    </TMPL_UNLESS>
     </p>
     </p>
 
@@ -43,6 +45,7 @@
     <p><TMPL_VAR NAME="diag_two"></p>
     -->
 
+    <TMPL_UNLESS NAME="generateEmail">
     <!-- Alert if we have not payed just yet -->
     <TMPL_IF NAME="paymentNeeded">
       <hr>
@@ -102,6 +105,8 @@
       </TMPL_LOOP>
       </table>
     </div>
+
+    </TMPL_UNLESS>
 
     <!--
     <TMPL_LOOP NAME="rollingHistory">
