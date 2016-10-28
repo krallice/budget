@@ -15,3 +15,6 @@ payDay : 15
 
 # Our start date for our mortgage:
 startDate : 2015-07-01
+
+# For when not living in Navua, day that Rent is due:
+rentDay: 14
