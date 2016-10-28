@@ -248,20 +248,29 @@ sub Main {
 	my $lifeAverage = 0;
 	my $monthsPassed = calculateDuration();
 
+	# Generate our Interest/Rent Due Reminders:
 	$template->param( interestDue, checkInterestDue() );
 	$template->param( rentDue, checkRentDue() );
+
+	# General Stats:
+	$template->param( monthsPassed, $monthsPassed );
 	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
 	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
+	# Check if we've paid yet?:
 	$template->param( paymentNeeded, checkPaymentNeeded($navuaAO) );
+	# Debugs:
 	$template->param( payCycleStart, $dateHash->{cycStart} );
 	$template->param( payCycleEnd, $dateHash->{cycEnd} );
+	# Get amount paid this month:
 	$template->param( currentOffsetPayment, getSignedValue($navuaAO->getOffsetPaidCycle("$dateHash->{cycStart}", "$dateHash->{cycEnd}")) );
-	$template->param( rollingHistory, getRollingHistory($navuaAO, \$average, \$lifeAverage, \$monthsPassed) );
-	$template->param( monthsPassed, $monthsPassed );
+
+	# Generate our History Table:
 	$template->param( averagePayment, $average);
 	$template->param( lifeAverage, $lifeAverage);
+	$template->param( rollingHistory, getRollingHistory($navuaAO, \$average, \$lifeAverage, \$monthsPassed) );
 
+	# Generate minimal output for email:
 	$template->param( generateEmail, $ENV{GEN_EMAIL} );
 
 	# Diags:
