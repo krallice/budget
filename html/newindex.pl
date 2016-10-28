@@ -171,6 +171,13 @@ sub checkInterestDue {
 	return $interest_due;
 }
 
+sub checkRentDue {
+
+	my $rent_due = 0;
+	$rent_due = 1 if $dateHash->{calDay} >= $config->{rentDay};
+	return $rent_due;
+}
+
 # Sub to format our numbers like XX,XXX etc..
 sub formatNumbers {
 
@@ -223,6 +230,7 @@ sub Main {
 	my $monthsPassed = calculateDuration();
 
 	$template->param( interestDue, checkInterestDue() );
+	$template->param( rentDue, checkRentDue() );
 	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
 	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );

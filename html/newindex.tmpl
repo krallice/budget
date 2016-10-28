@@ -18,9 +18,14 @@
     Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">. <br />
     Paid This Month: <TMPL_VAR NAME="currentOffsetPayment">. </i><br />
     <TMPL_IF NAME="interestDue">
-      <font color=#B20000">Interest Has Not Yet Been Paid </font>
+      <font color=#B20000">Interest Has Not Yet Been Paid (~$500)</font><br />
     <TMPL_ELSE>
-      <font color="#00B200">Interest Has Been Paid!</font>
+      <font color="#00B200">Interest Has Been Paid!</font><br />
+    </TMPL_IF>
+    <TMPL_IF NAME="rentDue">
+      <font color=#B20000">Rent Has Not Yet Been Paid (~$3k)</font><br />
+    <TMPL_ELSE>
+      <font color="#00B200">Rent Has Been Paid!</font><br />
     </TMPL_IF>
     </p>
     </p>
