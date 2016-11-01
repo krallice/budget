@@ -7,4 +7,6 @@ $(document).ready(function() {
   }
   pulsate();
 
+  $('#rainbowtitle').rainbow({animate:true,animateInterval:100,colors:['#FF0000','#f26522','#fff200','#00a651','#28abe2','#2e3192','#6868ff']});
+
 });
