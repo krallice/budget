@@ -17,4 +17,4 @@ payDay : 15
 startDate : 2015-07-01
 
 # For when not living in Navua, day that Rent is due:
-rentDay: 14
+rentDay: 10

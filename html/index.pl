@@ -191,8 +191,8 @@ sub checkInterestDue {
 
 sub checkRentDue {
 
-	my $rent_due = 0;
-	$rent_due = 1 if $dateHash->{calDay} >= $config->{rentDay};
+	my $rent_due = 1;
+	$rent_due = 0 if $dateHash->{calDay} >= $config->{rentDay} && $dateHash->{calDay} <= $config->{payDay};
 	return $rent_due;
 }
 
