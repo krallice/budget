@@ -254,6 +254,7 @@ sub Main {
 
 	# Base Stats:
 	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
+	$template->param( monthsPassed, $monthsPassed );
 	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
 	# Check if we've paid yet?:
