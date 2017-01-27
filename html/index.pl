@@ -84,47 +84,58 @@ sub getRollingHistory {
 	while ( $i < $historyDepth ) {
 		my $history = {};
 		
-		#Calculate Start:
+		# Calculate Start:
 		$history->{cycDay} = $dateHash->{cycDay};
 		$history->{cycYear} = $dateHash->{cycYear};
 			
 		if ( checkPaymentNeeded($navuaAO) == 0 ) {
 			$history->{cycMonth} = sprintf("%02d", $dateHash->{cycMonth} - ($historyDepth - $i - 1)); 
-		# We have to make a payment, so lets go back one more:
+		# We have to make a payment, so do not include this month + lets go back one more:
 		} else {
 			$history->{cycMonth} = sprintf("%02d", $dateHash->{cycMonth} - ($historyDepth - $i));
 		}
+
+		# Roll over behind December:
 		if ( $history->{cycMonth} < 1 ) {
-			$history->{cycMonth} = 12;
+			$history->{cycMonth} = sprintf("%02d", 12 + $history->{cycMonth});
                         $history->{cycYear} = sprintf("%02d", $dateHash->{calYear} - 1);
-		}
-		
-		#Calculate End:
-		$history->{cycDayEnd} = 14;
-		$history->{cycYearEnd} = $dateHash->{cycYear};
-		$history->{cycMonthEnd} = sprintf("%02d", $history->{cycMonth} + 1);
-		# Roll over:
-		if ( $history->{cycMonthEnd} > 12 ) {
-			$history->{cycMonthEnd} = sprintf("%02d", 1);
-			$history->{cycYearEnd} = sprintf("%02d", $history->{cycYear} + 1);
+			$history->{cycYearEnd} = sprintf("%02d", $dateHash->{cycYear} - 1);
+			
+		# Else we're still in the current year:
+		} else {
+			$history->{cycYearEnd} = sprintf("%02d", $dateHash->{cycYear});
 		}
 
+		# Calculate our end periods:
+		$history->{cycDayEnd} = 14;
+		$history->{cycMonthEnd} = sprintf("%02d", $history->{cycMonth} + 1);
+
+		# Prepare for our NavuaAO getOffsetPaidCycle() query:
 		$history->{cycStart} = "$history->{cycYear}" . "-" . "$history->{cycMonth}" . "-" . "$history->{cycDay}";
 		$history->{cycEnd} = "$history->{cycYearEnd}" . "-" . "$history->{cycMonthEnd}" . "-" . "$history->{cycDayEnd}";
+
+		# Format our month names:
 		if ( $history->{cycMonth} eq $dateHash->{cycMonth} ) {
 			$history->{monthName} = $numMonth{"$history->{cycMonth}"} . " (Current)";
+			#$history->{monthName} = "$history->{cycMonth} - $history->{cycMonthEnd} -- $history->{cycStart} to $history->{cycEnd}";
 		} else {
 			$history->{monthName} = $numMonth{"$history->{cycMonth}"};
+			#$history->{monthName} = "$history->{cycMonth} - $history->{cycMonthEnd} -- $history->{cycStart} to $history->{cycEnd}";
 		}
 
+		# Fire off to our access object:
 		$history->{sum} = $navuaAO->getOffsetPaidCycle("$history->{cycStart}", "$history->{cycEnd}");
-		$$avref = $$avref + $history->{sum};
-		$history->{sum} = getSignedValue($history->{sum});
 
+		# Tally up average:
+		$$avref = $$avref + $history->{sum};
+
+		# Prepare/Sign our value, and unshift onto our retarray:
+		$history->{sum} = getSignedValue($history->{sum});
 		unshift(@$rollingHistory, $history);
 		$i++;
 	}
 
+	# Manip our stats:
 	$$avref = getSignedValue(sprintf("%02d", ( $$avref / $historyDepth )));
 	$$liferef = getSignedValue($navuaAO->getLifeAverage($$monthsPassed));
 
