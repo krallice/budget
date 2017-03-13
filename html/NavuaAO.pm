@@ -160,7 +160,7 @@ sub getOffsetPaidCycle {
 	my $offsetPaid = 0;
 
 	# Get Offset Total:
-	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments WHERE date >= '$cycleStart' AND date < '$cycleEnd'");
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM payments WHERE date >= '$cycleStart' AND date <= '$cycleEnd'");
         $sqlQuery->execute();
 	$offsetPaid = $sqlQuery->fetchrow;
 	#$offsetPaid = formatNumbers("$offsetPaid");
