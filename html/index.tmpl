@@ -11,7 +11,7 @@
     -->
   <!-- Header -->
     <div class="row">
-      <h1 id="rainbowtitle">Summer Hill</h1>
+      <a href="./index.pl"><h1 id="rainbowtitle">Summer Hill</h1></a>
       <!-- <img src="img/cane.gif"><font face="Great Vibes" size="10">merry christmas you filthy animal</font><img src="img/cane.gif"> -->
     </div>
 
@@ -19,26 +19,28 @@
     <div class="row">
       <hr>
 
-      <b>Amount (including holiday savings):</b>
+      <b>Combined Total:</b>
       <h3>$<TMPL_VAR NAME="currentOffsetIncludingSavings"></h3><br />
 
-      Amount paid on Mortgage: <b>$<TMPL_VAR NAME="currentOffset"></b><br />
-      <span class="pulsate">Paid This Month: <TMPL_VAR NAME="currentOffsetPayment">.</span><br />
-      Current Month: <TMPL_VAR NAME="monthsPassed">.<br />
-      Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">.<br />
-      Savings: <b>$<TMPL_VAR NAME="currentSavings"></b><br /><br />
+      Amount locked for mortgage: <b>$<TMPL_VAR NAME="currentOffset"></b><br />
+      Holiday fund: <b>$<TMPL_VAR NAME="currentSavings"></b><br />
+      <span class="pulsate">Locked this month: <TMPL_VAR NAME="currentOffsetPayment">.</span><br />
+      Current month: <TMPL_VAR NAME="monthsPassed">.<br />
+      Amount remaining: $<TMPL_VAR NAME="mortgageRemaining">.<br />
+      <br />
 
       <TMPL_UNLESS NAME="generateEmail">
       <TMPL_IF NAME="interestDue">
-        <font color=#B20000">Interest Has Not Yet Been Paid (~$500)</font><br />
+        <font color=#B20000">Interest has not yet been paid (~$500)</font><br />
       <TMPL_ELSE>
-        <font color="#00B200">Interest Has Been Paid!</font><br />
+        <font color="#00B200">Interest has been paid!</font><br />
       </TMPL_IF>
       <TMPL_IF NAME="rentDue">
-        <font color=#B20000">Rent Has Not Yet Been Paid (~$3k)</font><br />
+        <font color=#B20000">Rent has not yet been paid (~$3k)</font><br />
       <TMPL_ELSE>
-        <font color="#00B200">Rent Has Been Paid!</font><br />
+        <font color="#00B200">Rent has been paid!</font><br />
       </TMPL_IF>
+      Bill buffer: <b>$<TMPL_VAR NAME="billReservation"></b><br />
       </TMPL_UNLESS>
     </div>
 
