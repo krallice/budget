@@ -120,6 +120,24 @@ sub getCurrentOffset {
 
 }
 
+sub getCurrentOffsetIncludingSavings {
+
+	my $self = shift;
+	my $cycleStart = shift; # Date that our pay month cycle starts
+	my $selectedMonth = shift;
+	my $selectedDay = shift;
+
+	my $currentOffset = getCurrentOffset($self);
+
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM savings");
+        $sqlQuery->execute();
+	my $currentSavings = $sqlQuery->fetchrow;
+
+	# Return our sum
+	return $currentOffset + $currentSavings;
+
+}
+
 # Return the amount of mortgage remaining (Pretty comma's form)
 # ie: Mortgage - ( Offset + Principal )
 sub getMortgageRemainingPretty {
