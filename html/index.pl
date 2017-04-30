@@ -267,7 +267,11 @@ sub Main {
 	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
 	$template->param( monthsPassed, $monthsPassed );
 	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
+
+	# Get our large progress values:
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
+	$template->param( currentOffsetIncludingSavings, formatNumbers($navuaAO->getCurrentOffsetIncludingSavings($config->{payDay})) );
+
 	# Check if we've paid yet?:
 	$template->param( paymentNeeded, checkPaymentNeeded($navuaAO) );
 
