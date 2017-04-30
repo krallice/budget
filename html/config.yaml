@@ -18,3 +18,7 @@ startDate : 2015-07-01
 
 # For when not living in Navua, day that Rent is due:
 rentDay: 10
+
+# Values used for calculating out of pocket expenses:
+rentExpense: 3000
+interestExpense: 500
