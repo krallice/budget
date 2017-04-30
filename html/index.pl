@@ -238,6 +238,24 @@ sub formatNumbers {
 	return join("", @r);
 }
 
+sub calcBillReservation {
+
+	my $billReservation = shift;
+	my $interestDueFlag = shift;
+	my $rentDueFlag = shift;
+
+
+	if ( $interestDueFlag ) {
+		$billReservation = $billReservation + $config->{interestExpense};
+	}
+	if ( $rentDueFlag ) {
+		$billReservation = $billReservation + $config->{rentExpense};
+	}
+
+	return $billReservation
+
+}
+
 sub Main {
 
         # Define our Template Objects:
@@ -251,23 +269,41 @@ sub Main {
 
 	# If we were POSTed; lets update our db:
 	if ( $q->request_method eq "POST" ) {
-		$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"));
-		notifyPayment($q->param(inputPay));
+		if ( $q->param("inputPay") ) {
+			$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"));
+			#notifyPayment($q->param(inputPay));
+		}
+		if ( $q->param("inputSavings") ) {
+			$navuaAO->addSavingsPayment($dateHash->{fullDate},$q->param("inputSavings"));
+		}
 	}
 
 	my $average = 0;
 	my $lifeAverage = 0;
 	my $monthsPassed = calculateDuration();
 
-	# Generate Interest/Rent Due Notifications:
-	$template->param( interestDue, checkInterestDue() );
-	$template->param( rentDue, checkRentDue() );
-
 	# Base Stats:
 	$template->param( lastOffsetValue, formatNumbers($navuaAO->getLastOffsetValue()) );
 	$template->param( monthsPassed, $monthsPassed );
 	$template->param( mortgageRemaining, formatNumbers($navuaAO->getMortgageRemaining($config->{totalMortgage})) );
+
+	# Get our large progress values:
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
+	
+	my $currentOffsetIncludingSavings = $navuaAO->getCurrentOffsetIncludingSavings($config->{payDay});
+	$template->param( currentOffsetIncludingSavings, formatNumbers($currentOffsetIncludingSavings) );
+
+	$template->param( currentSavings, formatNumbers($navuaAO->getCurrentSavings($config->{payDay})) );
+
+	# Generate Interest/Rent Due Notifications:
+	my $interestDueFlag = checkInterestDue();
+	my $rentDueFlag = checkRentDue();
+	my $billReservation = calcBillReservation( $currentOffsetIncludingSavings, $interestDueFlag, $rentDueFlag );
+
+	$template->param( interestDue, $interestDueFlag );
+	$template->param( rentDue, $rentDueFlag );
+	$template->param( billReservation, formatNumbers($billReservation) );
+
 	# Check if we've paid yet?:
 	$template->param( paymentNeeded, checkPaymentNeeded($navuaAO) );
 
