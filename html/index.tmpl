@@ -20,12 +20,13 @@
       <hr>
 
       <b>Amount (including holiday savings):</b>
-      <h3>$<TMPL_VAR NAME="currentOffset"></h3><br />
+      <h3>$<TMPL_VAR NAME="currentOffsetIncludingSavings"></h3><br />
 
       Amount paid on Mortgage: <b>$<TMPL_VAR NAME="currentOffset"></b><br />
       <span class="pulsate">Paid This Month: <TMPL_VAR NAME="currentOffsetPayment">.</span><br />
       Current Month: <TMPL_VAR NAME="monthsPassed">.<br />
-      Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">.<br /><br />
+      Amount Remaining: $<TMPL_VAR NAME="mortgageRemaining">.<br />
+      Savings: <b>$<TMPL_VAR NAME="currentSavings"></b><br /><br />
 
       <TMPL_UNLESS NAME="generateEmail">
       <TMPL_IF NAME="interestDue">

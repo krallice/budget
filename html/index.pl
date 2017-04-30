@@ -251,8 +251,13 @@ sub Main {
 
 	# If we were POSTed; lets update our db:
 	if ( $q->request_method eq "POST" ) {
-		$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"));
-		notifyPayment($q->param(inputPay));
+		if ( $q->param("inputPay") ) {
+			$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"));
+			#notifyPayment($q->param(inputPay));
+		}
+		if ( $q->param("inputSavings") ) {
+			$navuaAO->addSavingsPayment($dateHash->{fullDate},$q->param("inputSavings"));
+		}
 	}
 
 	my $average = 0;
@@ -271,6 +276,8 @@ sub Main {
 	# Get our large progress values:
 	$template->param( currentOffset, formatNumbers($navuaAO->getCurrentOffset($config->{payDay})) );
 	$template->param( currentOffsetIncludingSavings, formatNumbers($navuaAO->getCurrentOffsetIncludingSavings($config->{payDay})) );
+
+	$template->param( currentSavings, formatNumbers($navuaAO->getCurrentSavings($config->{payDay})) );
 
 	# Check if we've paid yet?:
 	$template->param( paymentNeeded, checkPaymentNeeded($navuaAO) );

@@ -120,6 +120,21 @@ sub getCurrentOffset {
 
 }
 
+sub getCurrentSavings {
+
+	my $self = shift;
+	my $cycleStart = shift; # Date that our pay month cycle starts
+	my $selectedMonth = shift;
+	my $selectedDay = shift;
+
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM savings");
+        $sqlQuery->execute();
+	my $currentSavings = $sqlQuery->fetchrow;
+
+	return $currentSavings;
+
+}
+
 sub getCurrentOffsetIncludingSavings {
 
 	my $self = shift;
@@ -128,10 +143,7 @@ sub getCurrentOffsetIncludingSavings {
 	my $selectedDay = shift;
 
 	my $currentOffset = getCurrentOffset($self);
-
-	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM savings");
-        $sqlQuery->execute();
-	my $currentSavings = $sqlQuery->fetchrow;
+	my $currentSavings = getCurrentSavings($self);
 
 	# Return our sum
 	return $currentOffset + $currentSavings;
@@ -206,6 +218,16 @@ sub addOffsetPayment {
 	my $pammount = shift;
 
 	my $sqlQuery = $self->{dbh}->prepare("INSERT INTO payments(date,amount) VALUES ('$pdate', $pammount)");
+	$sqlQuery->execute();
+}
+
+sub addSavingsPayment {
+
+	my $self = shift;
+	my $pdate = shift;
+	my $pammount = shift;
+
+	my $sqlQuery = $self->{dbh}->prepare("INSERT INTO savings(date,amount) VALUES ('$pdate', $pammount)");
 	$sqlQuery->execute();
 }
 
