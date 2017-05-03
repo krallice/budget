@@ -18,30 +18,30 @@
     <!-- Stats Header -->
     <div class="row">
       <hr>
+      <div class="col-md-4 col-md-offset-4">
+        <TMPL_UNLESS NAME="generateEmail">
+        Bill buffer: <b>$<TMPL_VAR NAME="billReservation"></b><br />
+        <TMPL_IF NAME="interestDue">
+          <font color=#B20000">Interest has not yet been paid (~$500)</font><br />
+        <TMPL_ELSE>
+          <font color="#00B200">Interest has been paid!</font><br />
+        </TMPL_IF>
+        <TMPL_IF NAME="rentDue">
+          <font color=#B20000">Rent has not yet been paid (~$3k)</font><br />
+        <TMPL_ELSE>
+          <font color="#00B200">Rent has been paid!</font><br />
+        </TMPL_IF>
+        </TMPL_UNLESS>
+        <br />
+        Total Locked: <b>$<TMPL_VAR NAME="currentOffsetIncludingSavings"><br /></b>
+        Mortgage Locked: <b>$<TMPL_VAR NAME="currentOffset"></b><br />
+        Holiday Fund: <b>$<TMPL_VAR NAME="currentSavings"></b><br /><br />
 
-      <b>Combined Total:</b>
-      <h3>$<TMPL_VAR NAME="currentOffsetIncludingSavings"></h3><br />
+        Current month: <TMPL_VAR NAME="monthsPassed">.<br />
+        <span class="pulsate">Locked this month: <TMPL_VAR NAME="currentOffsetPayment">.</span><br />
+        Amount remaining: $<TMPL_VAR NAME="mortgageRemaining">.<br />
 
-      Amount locked for mortgage: <b>$<TMPL_VAR NAME="currentOffset"></b><br />
-      Holiday fund: <b>$<TMPL_VAR NAME="currentSavings"></b><br />
-      <span class="pulsate">Locked this month: <TMPL_VAR NAME="currentOffsetPayment">.</span><br />
-      Current month: <TMPL_VAR NAME="monthsPassed">.<br />
-      Amount remaining: $<TMPL_VAR NAME="mortgageRemaining">.<br />
-      <br />
-
-      <TMPL_UNLESS NAME="generateEmail">
-      <TMPL_IF NAME="interestDue">
-        <font color=#B20000">Interest has not yet been paid (~$500)</font><br />
-      <TMPL_ELSE>
-        <font color="#00B200">Interest has been paid!</font><br />
-      </TMPL_IF>
-      <TMPL_IF NAME="rentDue">
-        <font color=#B20000">Rent has not yet been paid (~$3k)</font><br />
-      <TMPL_ELSE>
-        <font color="#00B200">Rent has been paid!</font><br />
-      </TMPL_IF>
-      Bill buffer: <b>$<TMPL_VAR NAME="billReservation"></b><br />
-      </TMPL_UNLESS>
+      </div>
     </div>
 
     <!--
