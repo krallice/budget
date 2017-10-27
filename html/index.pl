@@ -271,7 +271,7 @@ sub Main {
 	if ( $q->request_method eq "POST" ) {
 		if ( $q->param("inputPay") ) {
 			$navuaAO->addOffsetPayment($dateHash->{fullDate},$q->param("inputPay"));
-			#notifyPayment($q->param(inputPay));
+			notifyPayment($q->param(inputPay));
 		}
 		if ( $q->param("inputSavings") ) {
 			$navuaAO->addSavingsPayment($dateHash->{fullDate},$q->param("inputSavings"));
