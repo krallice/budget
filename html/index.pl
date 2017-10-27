@@ -276,6 +276,9 @@ sub Main {
 		if ( $q->param("inputSavings") ) {
 			$navuaAO->addSavingsPayment($dateHash->{fullDate},$q->param("inputSavings"));
 		}
+		if ( $q->param("inputSinking") ) {
+			$navuaAO->addSinkingPayment($dateHash->{fullDate},$q->param("inputSinking"));
+		}
 	}
 
 	my $average = 0;
@@ -294,6 +297,7 @@ sub Main {
 	$template->param( currentOffsetIncludingSavings, formatNumbers($currentOffsetIncludingSavings) );
 
 	$template->param( currentSavings, formatNumbers($navuaAO->getCurrentSavings($config->{payDay})) );
+	$template->param( currentSinking, formatNumbers($navuaAO->getCurrentSinking($config->{payDay})) );
 
 	# Generate Interest/Rent Due Notifications:
 	my $interestDueFlag = checkInterestDue();

@@ -120,6 +120,21 @@ sub getCurrentOffset {
 
 }
 
+sub getCurrentSinking {
+
+	my $self = shift;
+	my $cycleStart = shift; # Date that our pay month cycle starts
+	my $selectedMonth = shift;
+	my $selectedDay = shift;
+
+	my $sqlQuery = $self->{dbh}->prepare("SELECT SUM(amount) FROM sinking");
+        $sqlQuery->execute();
+	my $currentSinking = $sqlQuery->fetchrow;
+
+	return $currentSinking;
+
+}
+
 sub getCurrentSavings {
 
 	my $self = shift;
@@ -144,9 +159,10 @@ sub getCurrentOffsetIncludingSavings {
 
 	my $currentOffset = getCurrentOffset($self);
 	my $currentSavings = getCurrentSavings($self);
+	my $currentSinking = getCurrentSinking($self);
 
 	# Return our sum
-	return $currentOffset + $currentSavings;
+	return $currentOffset + $currentSavings + $currentSinking;
 
 }
 
@@ -228,6 +244,16 @@ sub addSavingsPayment {
 	my $pammount = shift;
 
 	my $sqlQuery = $self->{dbh}->prepare("INSERT INTO savings(date,amount) VALUES ('$pdate', $pammount)");
+	$sqlQuery->execute();
+}
+
+sub addSinkingPayment {
+
+	my $self = shift;
+	my $pdate = shift;
+	my $pammount = shift;
+
+	my $sqlQuery = $self->{dbh}->prepare("INSERT INTO sinking(date,amount) VALUES ('$pdate', $pammount)");
 	$sqlQuery->execute();
 }
 

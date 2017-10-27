@@ -35,7 +35,8 @@
         <br />
         Total Locked: <b>$<TMPL_VAR NAME="currentOffsetIncludingSavings"><br /></b>
         Mortgage Locked: <b>$<TMPL_VAR NAME="currentOffset"></b><br />
-        Holiday Fund: <b>$<TMPL_VAR NAME="currentSavings"></b><br /><br />
+        Holiday Fund: <b>$<TMPL_VAR NAME="currentSavings"></b><br />
+        Sinking Fund: <b>$<TMPL_VAR NAME="currentSinking"></b><br /><br />
 
         Current month: <TMPL_VAR NAME="monthsPassed">.<br />
         <span class="pulsate">Locked this month: <TMPL_VAR NAME="currentOffsetPayment">.</span><br />
@@ -91,6 +92,18 @@
             <div class="input-group">
               <div class="input-group-addon">$</div>
               <input type="text" class="form-control" id="inputSavings" name="inputSavings" placeholder="Amount.." pattern="\d*">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-2 col-md-offset-5">
+          <div class="form-group">
+            <label for="inputSinking">Add to Sinking:</label>
+            <div class="input-group">
+              <div class="input-group-addon">$</div>
+              <input type="text" class="form-control" id="inputSinking" name="inputSinking" placeholder="Amount.." pattern="\d*">
             </div>
           </div>
         </div>
